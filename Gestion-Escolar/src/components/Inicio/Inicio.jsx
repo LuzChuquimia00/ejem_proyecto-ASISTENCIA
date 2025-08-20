@@ -1,87 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import PocketBase from 'pocketbase';
 import './Inicio.css';
-
-// Configuración de PocketBase.
-const pb = new PocketBase('http://127.0.0.1:8090');
+import { pb } from '../../server/pocketbase';
 
 const Inicio = () => {
-  // 1. Usamos estados separados. Es un poco más claro que un solo objeto.
   const [presentes, setPresentes] = useState(0);
   const [totalAlumnos, setTotalAlumnos] = useState(0);
   const [ausentes, setAusentes] = useState(0);
   const [justificaciones, setJustificaciones] = useState(0);
-  
+  const [sinJustificaciones, setSinJustificaciones] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // useEffect se encarga de buscar los datos y suscribirse a los cambios.
   useEffect(() => {
-    
-    // 2. encapsulamos la lógica de búsqueda en su propia función.
-    //    Esto nos permite llamarla al inicio y también cuando haya una actualización.
+    let ignore = false;
+
     const fetchDashboardData = async () => {
+      if (ignore) return;
       try {
-        // 3. Lógica de fecha mejorada para mayor precisión.
-        //    PocketBase guarda todo en UTC. Para obtener todos los registros de un día
-        //    local, definimos el inicio y el fin de ese día y lo convertimos a UTC (toISOString).
+        // --- LÓGICA DE FECHA MEJORADA Y MÁS SEGURA ---
+        // 1. Obtenemos la fecha de "hoy" una sola vez para evitar inconsistencias.
         const hoy = new Date();
-        const inicioDelDia = new Date(hoy.setHours(0, 0, 0, 0)).toISOString();
-        const finDelDia = new Date(hoy.setHours(23, 59, 59, 999)).toISOString();
 
-        // 4. Peticiones en paralelo (eficiente) y con filtros en la base de datos (más eficiente aún).
-        const [studentRecords, presentRecords, absentRecords, justificationRecords] = await Promise.all([
-          // Total de alumnos
-          pb.collection('students').getFullList(),
-          
-          // Presentes del día
-          pb.collection('attendance_management').getFullList({
-            filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}" && state = "present"`,
-          }),
+        // 2. Creamos el objeto para el inicio del día (00:00:00)
+        const inicio = new Date(hoy);
+        inicio.setHours(0, 0, 0, 0);
+        const inicioDelDia = inicio.toISOString().split("T")[0];
+        
+        // 3. Creamos el objeto para el fin del día (23:59:59)
+        const fin = new Date(hoy);
+        fin.setDate(fin.getDate() + 1)
+        fin.setHours(23, 59, 59, 999);
+        const finDelDia = fin.toISOString().split("T")[0];
+        // --- FIN DE LA LÓGICA DE FECHA ---
+        const studentRecords = await pb.collection('students').getFullList()
+        const presentRecords = await pb.collection('attendance_management').getFullList({ filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}" && state = "present"` })
 
-          // Ausentes del día
-          pb.collection('attendance_management').getFullList({
-            filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}" && state = "absent"`,
-          }),
+        const absentRecords =  await pb.collection('attendance_management').getFullList({ filter: `state = "absent" && created >= "2025-08-20 00:00:00" && created <= "2025-08-20 23:59:59"`})
 
-          // Justificaciones del día
-          pb.collection('management_of_justifications').getFullList({
-            filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}"`,
-          }),
-        ]);
+        const justificationRecords = await pb.collection('management_of_justifications').getFullList({ filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}"` })
 
-        // Actualizamos el estado con los datos obtenidos
-        setTotalAlumnos(studentRecords.length);
-        setPresentes(presentRecords.length);
-        setAusentes(absentRecords.length);
-        setJustificaciones(justificationRecords.length);
+      
+        if (!ignore) {
+          setTotalAlumnos(studentRecords.length);
+          setPresentes(presentRecords.length);
+          setAusentes(absentRecords.length);
+          setJustificaciones(justificationRecords.reduce((acc,record)=>acc+=record.type=="A.J" ?  1 : 0,0));
+          setSinJustificaciones(justificationRecords.reduce((acc,record)=>acc+=record.type=="S.J" ?  1 : 0,0));
 
+          console.log("alumnos", studentRecords)
+        }
       } catch (err) {
-        setError('Error al conectar con la base de datos. Asegúrate de que PocketBase esté corriendo.');
-        console.error("Error fetching data from PocketBase:", err);
+        if (!err.isAbort && !ignore) {
+          setError('Error al conectar con la base de datos.');
+          console.error("Error fetching data from PocketBase:", err);
+        }
       } finally {
-        // Solo quitamos el "cargando" la primera vez.
-        if (loading) setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     };
 
-    // Primera carga de datos
     fetchDashboardData();
 
-    // 5. ¡La magia del tiempo real!
-    //    Nos suscribimos a cambios en las colecciones. Si algo se crea, actualiza o borra,
-    //    volvemos a ejecutar fetchDashboardData() para refrescar el panel.
+    pb.collection('students').subscribe('*', fetchDashboardData);
     pb.collection('attendance_management').subscribe('*', fetchDashboardData);
     pb.collection('management_of_justifications').subscribe('*', fetchDashboardData);
 
-    // 6. Limpieza al desmontar el componente.
-    //    Esto es crucial para evitar "fugas de memoria" y errores.
     return () => {
+      ignore = true;
+      pb.collection('students').unsubscribe();
       pb.collection('attendance_management').unsubscribe();
       pb.collection('management_of_justifications').unsubscribe();
     };
-  }, [loading]); // El 'loading' en el array de dependencias es para controlar el estado inicial.
+  }, []);
 
+  // El resto de tu componente (if loading, if error, y el return con el JSX) no necesita cambios.
   if (loading) {
     return <div className="loading-container">Calculando resumen del día...</div>;
   }
@@ -94,9 +89,9 @@ const Inicio = () => {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
   
-  // Tu JSX no necesita cambios, solo adaptar los nombres de las variables de estado.
   return (
     <div className="dashboard-container">
+      {/* Tu JSX no necesita cambios */}
       <header className="dashboard-header">
         <div className="header-left">
           <span className="menu-icon">☰</span>
@@ -129,8 +124,8 @@ const Inicio = () => {
           </div>
           <div className="card">
             <div className="card-icon" style={{ backgroundColor: 'rgba(108, 122, 137, 0.1)' }}>🛡️</div>
-            <p className="card-label">Alertas de Seguridad</p>
-            <p className="card-value">0</p>
+            <p className="card-label">Ausentes sin justificar</p>
+            <p className="card-value">{sinJustificaciones}</p>
           </div>
         </div>
       </main>
