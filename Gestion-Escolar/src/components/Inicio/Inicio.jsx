@@ -18,37 +18,47 @@ const Inicio = () => {
     const fetchDashboardData = async () => {
       if (ignore) return;
       try {
-        // --- LÓGICA DE FECHA MEJORADA Y MÁS SEGURA ---
-        // 1. Obtenemos la fecha de "hoy" una sola vez para evitar inconsistencias.
+        // --- LÓGICA DE FECHA CORREGIDA PARA POCKETBASE ---
+        // 1. Obtenemos la fecha de "hoy" en tu zona horaria (Argentina).
         const hoy = new Date();
 
-        // 2. Creamos el objeto para el inicio del día (00:00:00)
+        // 2. Creamos el objeto para el inicio del día (00:00:00 de Argentina)
         const inicio = new Date(hoy);
         inicio.setHours(0, 0, 0, 0);
-        const inicioDelDia = inicio.toISOString().split("T")[0];
-        
-        // 3. Creamos el objeto para el fin del día (23:59:59)
+        // Lo convertimos al formato UTC que PocketBase entiende.
+        const inicioDelDia = inicio.toISOString().replace('T', ' ').substring(0, 19);
+
+        // 3. Creamos el objeto para el fin del día (23:59:59 de Argentina)
         const fin = new Date(hoy);
-        fin.setDate(fin.getDate() + 1)
         fin.setHours(23, 59, 59, 999);
-        const finDelDia = fin.toISOString().split("T")[0];
+        // Lo convertimos también al formato UTC.
+        const finDelDia = fin.toISOString().replace('T', ' ').substring(0, 19);
         // --- FIN DE LA LÓGICA DE FECHA ---
-        const studentRecords = await pb.collection('students').getFullList()
-        const presentRecords = await pb.collection('attendance_management').getFullList({ filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}" && state = "present"` })
 
-        const absentRecords =  await pb.collection('attendance_management').getFullList({ filter: `state = "absent" && created >= "2025-08-20 00:00:00" && created <= "2025-08-20 23:59:59"`})
+        const filterHoy = `created >= "${inicioDelDia}" && created <= "${finDelDia}"`;
 
-        const justificationRecords = await pb.collection('management_of_justifications').getFullList({ filter: `created >= "${inicioDelDia}" && created <= "${finDelDia}"` })
+        // Ahora usamos el mismo filtro de fecha para todas las consultas del día
+        const studentRecords = await pb.collection('students').getFullList();
 
-      
+        const presentRecords = await pb.collection('attendance_management').getFullList({
+          filter: `${filterHoy} && state = "present"`
+        });
+
+        // ✅ CORREGIDO: Usamos el filtro dinámico en lugar de la fecha fija
+        const absentRecords = await pb.collection('attendance_management').getFullList({
+          filter: `${filterHoy} && state = "absent"`
+        });
+
+        const justificationRecords = await pb.collection('management_of_justifications').getFullList({
+          filter: filterHoy
+        });
+
         if (!ignore) {
           setTotalAlumnos(studentRecords.length);
           setPresentes(presentRecords.length);
           setAusentes(absentRecords.length);
-          setJustificaciones(justificationRecords.reduce((acc,record)=>acc+=record.type=="A.J" ?  1 : 0,0));
-          setSinJustificaciones(justificationRecords.reduce((acc,record)=>acc+=record.type=="S.J" ?  1 : 0,0));
-
-          console.log("alumnos", studentRecords)
+          setJustificaciones(justificationRecords.reduce((acc, record) => acc += record.type == "A.J" ? 1 : 0, 0));
+          setSinJustificaciones(justificationRecords.reduce((acc, record) => acc += record.type == "S.J" ? 1 : 0, 0));
         }
       } catch (err) {
         if (!err.isAbort && !ignore) {
@@ -80,7 +90,7 @@ const Inicio = () => {
   if (loading) {
     return <div className="loading-container">Calculando resumen del día...</div>;
   }
-  
+
   if (error) {
     return <div className="error-container">{error}</div>;
   }
@@ -88,7 +98,7 @@ const Inicio = () => {
   const today = new Date().toLocaleDateString('es-AR', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
-  
+
   return (
     <div className="dashboard-container">
       {/* Tu JSX no necesita cambios */}
