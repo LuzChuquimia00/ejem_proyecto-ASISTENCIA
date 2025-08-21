@@ -3,7 +3,6 @@ import './Inicio.css';
 import { pb } from '../../server/pocketbase';
 
 const Inicio = () => {
-  // Los estados se mantienen igual para mostrar los datos
   const [presentes, setPresentes] = useState(0);
   const [totalAlumnos, setTotalAlumnos] = useState(0);
   const [ausentes, setAusentes] = useState(0);
@@ -16,17 +15,13 @@ const Inicio = () => {
   useEffect(() => {
     let ignore = false;
 
-    // --- LÓGICA DE OBTENCIÓN DE DATOS SIMPLIFICADA ---
     const fetchDashboardData = async () => {
       if (ignore) return;
       try {
-        // ✅ ¡AHORA SOLO HACEMOS UNA LLAMADA!
-        // Consultamos la vista 'dashboard_summary' que ya tiene todos los cálculos hechos.
-        // Usamos getFirstListItem porque la vista siempre devuelve un único resultado.
+      
         const summaryData = await pb.collection('dashboard_summary').getFirstListItem('');
 
         if (!ignore) {
-          // Asignamos los datos directamente desde el resultado del backend
           setTotalAlumnos(summaryData.total_students);
           setPresentes(summaryData.present_count);
           setAusentes(summaryData.absent_count);
@@ -48,8 +43,6 @@ const Inicio = () => {
 
     fetchDashboardData();
 
-    // Las suscripciones siguen funcionando igual para mantener los datos en tiempo real.
-    // Cuando algo cambia, se vuelve a ejecutar la única y eficiente llamada a la API.
     pb.collection('students').subscribe('*', fetchDashboardData);
     pb.collection('attendance_management').subscribe('*', fetchDashboardData);
     pb.collection('management_of_justifications').subscribe('*', fetchDashboardData);
@@ -62,7 +55,6 @@ const Inicio = () => {
     };
   }, []);
 
-  // El resto del componente (la parte visual) no necesita ningún cambio.
   if (loading) {
     return <div className="loading-container">Calculando resumen del día...</div>;
   }
