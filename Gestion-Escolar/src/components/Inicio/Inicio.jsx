@@ -73,7 +73,7 @@ const Inicio = () => {
         <div className="header-left">
           <span className="menu-icon">☰</span>
           <div className="header-title">
-            <h1>Panel de Inicio</h1>
+            <h1>Gestion de Inicio</h1>
             <p className="current-date">{today}</p>
           </div>
         </div>
