@@ -1,0 +1,1 @@
+"Verificar que el título principal de la página sea 'Gestion De Inicio' y que el subtítulo 'Resumen general del estado de las asistencias en tiempo real' se muestre correctamente"

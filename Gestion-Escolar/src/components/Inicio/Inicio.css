@@ -1,12 +1,33 @@
 /* --- Paleta de Colores --- */
 :root {
-  --color-background: #f4f6f8; /* Un gris muy claro */
-  --color-card-background: #ffffff;
-  --color-text-primary: #34495e; /* Gris Plomo */
-  --color-text-secondary: #7f8c8d;
-  --color-primary-green: #2c5e1a; /* Verde Inglés */
-  --color-border: #e_d_e_cf0;
+  --color-background: #E3EDF2; /* Fondo de página - Un gris azulado muy claro */
+  --color-card-background: #FFFFFF; /* Fondo de las tarjetas en estado normal */
+  --color-text-primary: #0A0D25; /* Textos principales - Azul oscuro casi negro */
+  --color-text-secondary: #4E7D96; /* Texto secundario y detalles - Azul grisáceo */
+  --color-primary-green: #2c5e1a; /* Verde Inglés (mantenido para el perfil 'No') */
+  --color-border: #D1D9E6; /* Borde sutil */
   --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  /* Colores para cada tipo de tarjeta y su hover */
+  --card-assistencias-bg: #FFFFFF;
+  --card-assistencias-icon-bg: rgba(78, 125, 150, 0.15); /* Azul grisáceo muy claro */
+  --card-assistencias-icon-fill: #4E7D96; /* Azul grisáceo */
+  --card-assistencias-hover-bg: #D7E3EB; /* Un tono más oscuro del fondo */
+
+  --card-ausentes-bg: #FFFFFF;
+  --card-ausentes-icon-bg: rgba(227, 100, 100, 0.15); /* Rojo muy claro */
+  --card-ausentes-icon-fill: #E36464; /* Rojo */
+  --card-ausentes-hover-bg: #F0DCDC; /* Un tono más oscuro y rojizo */
+
+  --card-justificaciones-bg: #FFFFFF;
+  --card-justificaciones-icon-bg: rgba(255, 201, 74, 0.15); /* Amarillo muy claro */
+  --card-justificaciones-icon-fill: #FFC94A; /* Amarillo */
+  --card-justificaciones-hover-bg: #FDF4D9; /* Un tono más oscuro y amarillento */
+
+  --card-sin-justificar-bg: #FFFFFF;
+  --card-sin-justificar-icon-bg: rgba(143, 155, 168, 0.15); /* Gris muy claro */
+  --card-sin-justificar-icon-fill: #8F9BA8; /* Gris */
+  --card-sin-justificar-hover-bg: #E1E6EB; /* Un tono más oscuro del gris */
 }
 
 body {
@@ -46,7 +67,7 @@ body {
 
 .menu-icon {
   font-size: 28px;
-  color: var(--color-text-primary);
+  /* El SVG ahora usa el fill en línea o hereda var(--color-text-primary) */
   cursor: pointer;
 }
 
@@ -98,14 +119,11 @@ body {
   flex-direction: column;
   gap: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  cursor: pointer; /* Indica que es interactivo */
 }
 
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-}
-
+/* Base para los iconos dentro de las tarjetas */
 .card-icon {
   width: 50px;
   height: 50px;
@@ -113,14 +131,19 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.8rem;
   margin-bottom: 10px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.card-icon svg {
+  transition: fill 0.3s ease;
 }
 
 .card-label {
   font-size: 1rem;
   color: var(--color-text-secondary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .card-value {
@@ -128,20 +151,104 @@ body {
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0;
+  transition: color 0.3s ease;
+}
+
+/* --- Estilos específicos y hover para cada tipo de tarjeta --- */
+
+/* Asistencias */
+.card.assistencias-card {
+  background-color: var(--card-assistencias-bg);
+}
+.card.assistencias-card .card-icon {
+  background-color: var(--card-assistencias-icon-bg);
+}
+.card.assistencias-card .card-icon svg {
+  fill: var(--card-assistencias-icon-fill);
+}
+.card.assistencias-card:hover {
+  background-color: var(--card-assistencias-hover-bg);
+  box-shadow: 0 8px 20px rgba(78, 125, 150, 0.15); /* Sombra con el color de la tarjeta */
+  border-color: var(--card-assistencias-icon-fill);
+}
+.card.assistencias-card:hover .card-value,
+.card.assistencias-card:hover .card-label {
+  color: var(--color-text-primary); /* O un color más oscuro si se prefiere */
+}
+
+
+/* Ausentes */
+.card.ausentes-card {
+  background-color: var(--card-ausentes-bg);
+}
+.card.ausentes-card .card-icon {
+  background-color: var(--card-ausentes-icon-bg);
+}
+.card.ausentes-card .card-icon svg {
+  fill: var(--card-ausentes-icon-fill);
+}
+.card.ausentes-card:hover {
+  background-color: var(--card-ausentes-hover-bg);
+  box-shadow: 0 8px 20px rgba(227, 100, 100, 0.15);
+  border-color: var(--card-ausentes-icon-fill);
+}
+.card.ausentes-card:hover .card-value,
+.card.ausentes-card:hover .card-label {
+  color: var(--color-text-primary);
+}
+
+
+/* Justificaciones */
+.card.justificaciones-card {
+  background-color: var(--card-justificaciones-bg);
+}
+.card.justificaciones-card .card-icon {
+  background-color: var(--card-justificaciones-icon-bg);
+}
+.card.justificaciones-card .card-icon svg {
+  fill: var(--card-justificaciones-icon-fill);
+}
+.card.justificaciones-card:hover {
+  background-color: var(--card-justificaciones-hover-bg);
+  box-shadow: 0 8px 20px rgba(255, 201, 74, 0.15);
+  border-color: var(--card-justificaciones-icon-fill);
+}
+.card.justificaciones-card:hover .card-value,
+.card.justificaciones-card:hover .card-label {
+  color: var(--color-text-primary);
+}
+
+
+/* Ausentes sin justificar */
+.card.sin-justificar-card {
+  background-color: var(--card-sin-justificar-bg);
+}
+.card.sin-justificar-card .card-icon {
+  background-color: var(--card-sin-justificar-icon-bg);
+}
+.card.sin-justificar-card .card-icon svg {
+  fill: var(--card-sin-justificar-icon-fill);
+}
+.card.sin-justificar-card:hover {
+  background-color: var(--card-sin-justificar-hover-bg);
+  box-shadow: 0 8px 20px rgba(143, 155, 168, 0.15);
+  border-color: var(--card-sin-justificar-icon-fill);
+}
+.card.sin-justificar-card:hover .card-value,
+.card.sin-justificar-card:hover .card-label {
+  color: var(--color-text-primary);
 }
 
 
 /* --- Media Query para Escritorio (Diseño Adaptable) --- */
 @media (min-width: 768px) {
   .summary-cards-grid {
-    /* 2 columnas en tablets */
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
   .summary-cards-grid {
-    /* 4 columnas en pantallas grandes */
     grid-template-columns: repeat(4, 1fr);
   }
 }
