@@ -8,10 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "jest",
+    "test": "npx playwright test",
+    "test:api": "npx playwright test --config=playwright.config.ts --baseURL=http://127.0.0.1:8090",
     "pb:test": "pocketbase serve --dir=\"./pb_data_test\""
   },
   "dependencies": {
+    "playwright": "^1.55.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
