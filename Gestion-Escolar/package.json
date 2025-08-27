@@ -10,9 +10,11 @@
     "preview": "vite preview",
     "test": "npx playwright test",
     "test:api": "npx playwright test --config=playwright.config.ts --baseURL=http://127.0.0.1:8090",
-    "pb:test": "pocketbase serve --dir=\"./pb_data_test\""
+    "pb:test": "pocketbase serve --dir=\"./pb_data_test\"",
+    "codegen": "npx playwright codegen"
   },
   "dependencies": {
+    "codegen": "^0.1.0",
     "playwright": "^1.55.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
