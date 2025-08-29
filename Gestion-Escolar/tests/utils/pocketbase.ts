@@ -20,7 +20,7 @@ interface Attendance {
 }
 
 // Define el tipo para los registros de justificación
-interface Justification {
+export interface Justification {
     id: string;
     student: string;
     course: string[];
@@ -29,7 +29,7 @@ interface Justification {
 }
 
 // Instancia única de Axios para todas las peticiones a la API de PocketBase
-const consultas: AxiosInstance = axios.create({
+export const consultas: AxiosInstance = axios.create({
     baseURL: 'http://127.0.0.1:8090',
     timeout: 5000, // Aumenta el timeout para evitar errores de conexión
 });
@@ -71,11 +71,12 @@ export async function clearCollections(collections: string[]): Promise<void> {
  */
 export async function createStudents(count: number): Promise<Student[]> {
     const students: Student[] = [];
+    const dateOfBirth = new Date().toISOString().split('T')[0]; // Genera una fecha de nacimiento simple
     for (let i = 1; i <= count; i++) {
         const response = await consultas.post('/api/collections/students/records', {
             name: `StudentName${i}`,
             surname: `StudentSurname${i}`,
-            course: '1°C',
+            date: dateOfBirth, // <-- ¡CORRECCIÓN! Ahora usa el campo 'date'
             blood_type: 'A+'
         });
         const student: Student = response.data;

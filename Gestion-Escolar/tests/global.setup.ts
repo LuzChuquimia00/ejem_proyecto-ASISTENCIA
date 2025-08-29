@@ -12,7 +12,7 @@ async function globalSetup(config: FullConfig) {
     console.log('Ejecutando globalSetup: Preparando la base de datos para los tests...');
 
     // Limpia todas las colecciones relevantes antes de sembrar nuevos datos.
-    const collectionsToClear = ['students', 'attendance_management', 'management_of_justifications', 'dashboard_summary'];
+    const collectionsToClear = ['students', 'attendance_management', 'management_of_justifications'];
     await clearCollections(collectionsToClear);
 
     // Sube los datos de prueba.

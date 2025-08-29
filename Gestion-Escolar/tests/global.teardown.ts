@@ -12,7 +12,7 @@ async function globalTeardown(config: FullConfig) {
     console.log('Ejecutando globalTeardown: Limpiando base de datos...');
 
     // Limpia todas las colecciones relevantes
-    const collectionsToClear = ['students', 'attendance_management', 'management_of_justifications', 'dashboard_summary'];
+    const collectionsToClear = ['students', 'attendance_management', 'management_of_justifications'];
     await clearCollections(collectionsToClear);
 
     console.log('GlobalTeardown completado. La base de datos está limpia.');

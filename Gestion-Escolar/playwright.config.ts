@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import 'dotenv/config'; // Esto carga las variables de entorno.
 
 /**
  * Read environment variables from file.
@@ -13,8 +14,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   // Global Setup and Teardown
-  globalSetup: './tests/global-setup.ts',
-  globalTeardown: './tests/global-teardown.ts',
+  globalSetup: './tests/global.setup.ts',
+  globalTeardown: './tests/global.teardown.ts',
   testDir: './tests',
 
   // Test Execution Configuration
@@ -32,39 +33,26 @@ export default defineConfig({
 
   // Browser Projects
   projects: [
+    // Proyecto para pruebas de API
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'api',
+      testDir: './tests/api', // Solo busca tests en la carpeta 'api'
+      use: {
+        baseURL: process.env.PLAYWRIGHT_BASE_URL_API, // URL del backend desde .env
+        trace: 'on-first-retry',
+      },
     },
-    // Optional browsers for testing
-    // {
-    //   name: 'firefox',
-    //   use: { ...devices['Desktop Firefox'] },
-    // },
-    // {
-    //   name: 'webkit',
-    //   use: { ...devices['Desktop Safari'] },
-    // },
 
-    // Mobile viewports
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    // Branded browsers
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
+    // Proyecto para pruebas visuales (UI)
+    {
+      name: 'web',
+      testDir: './tests/web', // Suponiendo que tus tests visuales están aquí
+      use: { 
+        baseURL: process.env.PLAYWRIGHT_BASE_URL_WEB, // URL del frontend desde .env
+        ...devices['Desktop Chrome'],
+        trace: 'on-first-retry',
+      },
+    },
   ],
 
   // Local Development Server
