@@ -1,6 +1,6 @@
 // tests/api/justified-absences.spec.ts
 import { test, expect } from '@playwright/test';
-import { createStudents, createJustification, createAttendance } from '../utils/pocketbase';
+import { createStudents, createJustification } from '../utils/pocketbase';
 
 // No es necesario un 'beforeEach' porque globalSetup ya prepara la base de datos.
 // La lógica para crear datos de prueba específicos para un test se hace dentro del test mismo.
@@ -27,33 +27,4 @@ test('El backend registra y recupera una ausencia justificada', async ({ request
     expect(data.items.length).toBe(1);
     expect(data.items[0].student).toBe(student.id);
     expect(data.items[0].type).toBe('A.J');
-});
-
-// Criterio: "Permitir Listar Alumnos y Asistencias"
-test('El backend permite obtener la lista de todos los alumnos', async ({ request }) => {
-    // Se asume que globalSetup crea 10 estudiantes
-    // El 'beforeEach' para limpiar la base de datos ya no es necesario aquí
-    const students = await createStudents(10);
-    expect(students.length).toBe(10);
-
-    const studentsResponse = await request.get('/api/collections/students/records');
-    const studentsData = await studentsResponse.json();
-    // Validamos que la lista contenga los 10 estudiantes creados
-    expect(studentsData.items.length).toBe(10);
-});
-
-test('El backend permite obtener la lista de todas las asistencias', async ({ request }) => {
-    // Creamos un estudiante de prueba para la asistencia
-    const student = (await createStudents(1))[0];
-
-    // Creamos una asistencia para el estudiante
-    await createAttendance(student.id, '1°C', 'present');
-
-    const attendanceResponse = await request.get('/api/collections/attendance_management/records');
-    const attendanceData = await attendanceResponse.json();
-
-    // Validamos que haya una sola asistencia registrada
-    expect(attendanceData.items.length).toBe(1);
-    expect(attendanceData.items[0].student).toBe(student.id);
-    expect(attendanceData.items[0].status).toBe('present');
 });

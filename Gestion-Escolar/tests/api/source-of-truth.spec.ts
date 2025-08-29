@@ -1,12 +1,6 @@
 // tests/api/source-of-truth.spec.ts
 import { test, expect } from '@playwright/test';
-import { clearCollections, createStudents } from './pocketbase-test-helpers.js';
-
-
-test.beforeEach(async ({ request }) => {
-    await clearCollections(request);
-});
-
+import { clearCollections, createStudents } from '../utils/pocketbase';
 
 // Criterio: "Ser la Fuente de Verdad"
 test('El backend rechaza datos invalidos y mantiene la integridad de la base de datos', async ({ request }) => {
@@ -16,7 +10,6 @@ test('El backend rechaza datos invalidos y mantiene la integridad de la base de 
     });
     // Verifica que la peticion falle (status 400 = Bad Request)
     expect(invalidStudentResponse.status()).toBe(400);
-
 
     // Verifica que el estudiante no fue creado en la base de datos
     const studentsResponse = await request.get('/api/collections/students/records');
