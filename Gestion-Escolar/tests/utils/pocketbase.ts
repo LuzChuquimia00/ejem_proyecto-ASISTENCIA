@@ -39,19 +39,32 @@ export const consultas: AxiosInstance = axios.create({
  * @param collections El array de nombres de colecciones a limpiar.
  * @returns Una promesa que se resuelve cuando la limpieza ha terminado.
  */
+// utils/pocketbase.ts
+
 export async function clearCollections(collections: string[]): Promise<void> {
+    // AÑADIDO: Mensaje de inicio para saber que el proceso comenzó.
+    console.log('--- INICIANDO PROCESO DE LIMPIEZA DE DATOS ---');
+
     for (const collection of collections) {
         try {
             const response = await consultas.get(`/api/collections/${collection}/records?perPage=200`);
-            const data = response.data;
+            const recordsToDelete = response.data.items;
 
-            if (data.items.length > 0) {
-                console.log(`Eliminando ${data.items.length} registros de la colección: '${collection}'`);
+            if (recordsToDelete.length > 0) {
+                // AÑADIDO: Mensaje más específico sobre cuántos registros se encontraron.
+                console.log(`[${collection}] Se encontraron ${recordsToDelete.length} registros para eliminar.`);
 
-                const deletePromises = data.items.map((record: any) =>
+                const deletePromises = recordsToDelete.map((record: any) =>
                     consultas.delete(`/api/collections/${collection}/records/${record.id}`)
                 );
                 await Promise.all(deletePromises);
+                
+                // AÑADIDO: Mensaje de confirmación de la eliminación.
+                console.log(`[${collection}] Se eliminaron todos los registros exitosamente.`);
+
+            } else {
+                // AÑADIDO: Mensaje para saber si la colección ya estaba vacía.
+                console.log(`[${collection}] La colección ya estaba vacía. No hay nada que limpiar.`);
             }
         } catch (error: unknown) {
             if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -62,6 +75,8 @@ export async function clearCollections(collections: string[]): Promise<void> {
             }
         }
     }
+    // AÑADIDO: Mensaje de fin para saber que el proceso terminó.
+    console.log('--- PROCESO DE LIMPIEZA COMPLETADO ---');
 }
 
 /**

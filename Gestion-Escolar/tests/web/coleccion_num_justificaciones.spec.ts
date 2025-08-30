@@ -14,4 +14,9 @@ test('Validar que la colección "justificaciones" muestre el titulo y un contado
     
     // 3. Valida que la nueva página muestre el título correcto.
     await expect(page.getByRole('main')).toContainText('Justificaciones');
+<<<<<<< HEAD
+=======
+    await page.locator('#justificaciones').click();
+    await expect(page.locator('#justificaciones')).toContainText('0');
+>>>>>>> 31738e1ffa12120e9bb65310b142b62314b55c63
 });
