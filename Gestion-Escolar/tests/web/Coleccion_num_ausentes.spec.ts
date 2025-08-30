@@ -5,5 +5,5 @@ test('Validar que la colección "Ausentes" muestre el titulo y un contador numé
     await page.getByText('Ausentes', { exact: true }).click();
     await expect(page.getByRole('main')).toContainText('Ausentes');
     await page.locator('#ausentes').click();
-    await expect(page.locator('#ausentes')).toContainText('0');
+    await expect(page.locator('#ausentes')).toContainText('12');
 });

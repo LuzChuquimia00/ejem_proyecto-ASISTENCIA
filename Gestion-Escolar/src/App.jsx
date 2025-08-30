@@ -1,10 +1,19 @@
+import React, { useState } from 'react';
 import Inicio from './components/Inicio/Inicio.jsx';
 
 function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    // Es buena práctica envolver el componente en una clase principal si es necesario.
     <div className="App">
-      <Inicio />
+      <Inicio
+        isSidebarOpen={isSidebarOpen}
+        toggleSidebar={toggleSidebar}
+      />
     </div>
   );
 }

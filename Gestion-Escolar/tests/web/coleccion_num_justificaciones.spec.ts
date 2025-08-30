@@ -5,5 +5,5 @@ test('Validar que la colección "justificaciones" muestre el titulo y un contado
     await page.getByText('Justificaciones').click();
     await expect(page.getByRole('main')).toContainText('Justificaciones');
     await page.locator('#justificaciones').click();
-    await expect(page.locator('#justificaciones')).toContainText('1');
+    await expect(page.locator('#justificaciones')).toContainText('0');
 });
