@@ -7,7 +7,7 @@ interface Student {
     id: string;
     name: string;
     surname: string;
-    course: string;
+    date: string;
     blood_type: string;
 }
 
