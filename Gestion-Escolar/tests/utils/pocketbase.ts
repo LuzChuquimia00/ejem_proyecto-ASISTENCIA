@@ -77,7 +77,7 @@ export async function createStudents(count: number): Promise<Student[]> {
             name: `StudentName${i}`,
             surname: `StudentSurname${i}`,
             date: dateOfBirth, // <-- ¡CORRECCIÓN! Ahora usa el campo 'date'
-            blood_type: 'A+'
+            blood_type: ['A+']
         });
         const student: Student = response.data;
         students.push(student);
