@@ -91,7 +91,7 @@ export async function createStudents(count: number): Promise<Student[]> {
         const response = await consultas.post('/api/collections/students/records', {
             name: `StudentName${i}`,
             surname: `StudentSurname${i}`,
-            date: dateOfBirth, // <-- ¡CORRECCIÓN! Ahora usa el campo 'date'
+            date: dateOfBirth, 
             blood_type: ['A+']
         });
         const student: Student = response.data;
