@@ -9,7 +9,7 @@ test('El backend rechaza una justificación sin tipo de justificación y no crea
 
     // 2. Intenta crear una justificación con el campo 'type' vacío.
     const invalidJustificationResponse = await consultas.post('/api/collections/management_of_justifications/records', {
-        student: 'some_valid_student_id', // Aquí deberías usar un ID válido
+        student: 'studentId', 
         course: '1°C',
         type: '' // Tipo de justificación vacío
     });
